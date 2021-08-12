@@ -1,0 +1,70 @@
+---
+# tasks  file for ./ansible/roles/firewall
+
+- name: "Выполнение общих задач для всех хостов"
+  include_role:
+    name: common
+  tags: firewall
+
+# ## Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
+# - name: "Установить пакеты необходимые только для firewall "
+#   dnf:
+#     name: "{{ dnf_install_host }}"
+#     state: present
+#     disable_gpg_check:  yes
+#   tags: firewall
+
+#########################test task, will be remove######################################
+# - name: Display all variables/facts known for a host
+#   debug:
+#     var: ansible_facts
+#     # var: hostvars['srvweb']['ansible_eth1']['ipv4']['address']
+#     # var: hostvars[inventory_hostname]['ansible_eth2']['ipv4']['address']
+#   register: ipv4_firewall
+#     # verbosity: 4
+#   tags: firewall
+#
+# - name: Display all variables/facts known for a host
+#   debug:
+#     var:  ipv4_firewall
+#   tags: firewall
+#
+#
+#
+# - name: Display register var
+#   debug:
+#     var: hostvars['srvbam']
+#     # verbosity: 4
+#   tags: firewall
+#
+# - name: Display srvweb vars
+#   debug:
+#     # var: hostvars['srvweb'].eth1.ipv4.address
+#     var: ansible_facts.eth1.ipv4.address
+#     # var: hostvars[inventory_hostname]['ansible_eth2']['ipv4']['address']
+#   register: ipv4_firewall
+#     # verbosity: 4
+#   tags: firewall
+########################################END#####################################
+
+#Запуск задач, для установки и настройки iptables.
+#
+# ##Скопировать файл "iptables" для настройки iptables на хосте firewall.
+# - name: Copy file iptables to firewall host
+#   copy:
+#     dest: /etc/sysconfig/iptables
+#     src:  firewall_iptables
+#     owner:  root
+#     mode: 0600
+#   tags: firewall
+#   notify:
+#      - restart iptables
+#
+#
+# ## Включить в автозагрузку и запустить iptables
+# - name: Enable and started iptables on firewall host
+#   systemd:
+#     name: iptables
+#     state: started
+#     enabled: yes
+#   tags: firewall

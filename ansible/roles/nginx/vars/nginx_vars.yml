@@ -1,0 +1,20 @@
+---
+# vars  file for ./ansible/roles/nginx
+
+# wpdirectory: "/var/www/{{ domain_name }}/wordpress"
+# domain_name: project.loc
+# nginx_root_path: "/var/www/{{ domain_name }}"
+# ssl_cert_path: "/etc/pki/nginx/project.loc/"
+# cert_file: "/etc/pki/nginx/project.loc/sert.pem"
+# key_file: "/etc/pki/nginx/project.loc/privkey.pem"
+# csr_path: "/etc/pki/nginx/project.loc/local.csr"
+# log_path: "/var/log/nginx/"
+#
+# ## SSL Variables for generate cert and key
+# server_hostname: 192.168.3.5
+# key_size: 4096
+# passphrase: # Set if you want passphrase
+# key_type: Ed25519 # Others include DSA, ECC, Ed25519, Ed448, X25519, X448
+# country_name: By
+# email_address: admin@test.by
+# organization_name: OTUS

@@ -1,0 +1,38 @@
+all:
+  vars:
+    ansible_user: 'vagrant'
+    ansible_ssh_pass: 'vagrant'
+    ansible_host: 127.0.0.1
+    # Пароль для доступа в MySQL
+    new_passwd:  Otus_2021
+
+#Группа proj_net (parent), включающая в себя группы clients и servers (children)
+proj_net:
+  vars:
+    ## db_* переменные для подключения к mysql базе данных, созданной в роли "mysql"
+    db_name_wrdp: "wrdp"
+    db_user_wrdp: "wordpress"
+    db_password_wrdp: "WorDpreSS2!!"
+    db_host_wrdp: "192.168.3.7"
+    db_prefix_wrdp: "wp_"
+    # borg vars
+    borg_log_path: /var/log/borg
+    borg_log_file_name: borgbackup.log
+    # borg_user_name: borg
+    # borg_group_name: borg
+    # borg_user_home: /home/borg
+    ## Hash password "qwerty" for user "borg", creates in role "borg"
+    hash_passwd: $6$XxdVjYDINxCOZAK7$MKlVSXpPlFWlD8S2jfVT7ezY9uTTGEDvInPFtj8AOqWfVbLh6srXRiqZXqUSFrSSaNI2sPg3aAWJ4qe8zpPs40
+  children:
+    clients:
+    servers:
+servers:
+  hosts:
+    srvmysql:
+    firewall:
+    srvweb:
+    # bam - Backup, Authentication, Monitoring
+    srvbam:
+clients:
+  hosts:
+    backupmysql:

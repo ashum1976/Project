@@ -1,0 +1,17 @@
+---
+
+- name:  'Установка и настройка проекта '
+  hosts:
+    - proj_net
+  become: True
+  gather_facts: True
+  roles:
+     # - mysql
+     - nginx
+     # - wdprs
+     - firewall
+     # - zabbix
+     - borg
+     # - rsyslog
+  vars_files:
+    - /vagrant/ansible/roles/defaults/main.yml

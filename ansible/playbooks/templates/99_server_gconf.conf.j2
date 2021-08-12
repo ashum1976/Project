@@ -1,0 +1,22 @@
+# Provides UDP syslog reception.
+#Загружаем необходимые для работы rsyslog-a  модули на сервере и шаблоны для формирования файлов логов от удалённых клиентов.
+
+module(load="imudp")
+input(type="imudp" port="35514")
+
+# Provides TCP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imtcp.html
+module(load="imtcp")
+input(type="imtcp" port="35514")
+
+#Templates for servers. Шаблоны для сохранения файлов на сервере по имени программы, IP адресу, имени хоста.
+
+template (name="path_auth_save" type="string" string="/var/log/remote/%hostname%/%fromhost-ip%-auth.log")
+template (name="path_ip_save" type="string" string="/var/log/remote/%HOSTNAME%/%fromhost-ip%-%programname%.log")
+template (name="path_audit_save" type="string" string="/var/log/remote/%HOSTNAME%/%fromhost-ip%-audit.log")
+template (name="path_nginx_error" type="string" string="/var/log/remote/%HOSTNAME%/%fromhost-ip%-nginx_error.log")
+template (name="path_nginx_access" type="string" string="/var/log/remote/%HOSTNAME%/%fromhost-ip%-nginx_access.log")
+
+#Templates for servers. Шаблоны для формирования строки из входящих данных от клиентов
+
+template(name="OnlyMsg" type="string" string="%msg:::drop-last-lf%\n")

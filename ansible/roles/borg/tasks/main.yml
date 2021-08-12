@@ -1,0 +1,105 @@
+---
+# # tasks file for ./ansible/roles/borg
+- name: "Выполнение общих задач для всех хостов"
+  include_role:
+    name: common
+  tags: srvbam
+
+# # Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
+# - name: "Установить пакеты необходимые только для srvbam "
+#   dnf:
+#     name: "{{ dnf_install_host }}"
+#     state: present
+#     disable_gpg_check:  yes
+#   tags: srvbam
+
+- name: "Создание группы для пользователя borg"
+  group:
+    name:  "{{ borg_group_name }}"
+    state: present
+  tags: srvbam
+
+- name: "Создание пользователя для система архивации borgbackup"
+  user:
+    name: "{{ borg_user_name }}"
+    group: "{{ borg_group_name }}"
+    home: "{{ borg_user_home }}"
+    password: "{{ hash_passwd }}"
+    state: present
+    # generate_ssh_key: yes
+    # ssh_key_bits: 4096
+    # ssh_key_file: .ssh/id_ed25519
+    # ssh_key_type: ed25519
+  tags: srvbam
+
+
+
+- name: "Create dir for ssh key"
+  file:
+    path: "{{ borg_user_home }}/.ssh"
+    state: directory
+    owner: borg
+    group: borg
+    mode: 0700
+  tags: srvbam
+
+
+# - name: Copy ssh public key для работы borgbackup
+#   copy:
+#     src: id_ed25519.pub.j2
+#     dest: /home/borg/.ssh/id_ed25519.pub
+#     mode: 0600
+#     owner: borg
+#     group: borg
+#   tags: srvbam
+
+- name: "Copy ssh public key для работы borgbackup"
+  template:
+    src: id_ed25519.pub.j2
+    dest: /home/borg/.ssh/authorized_keys
+    owner: root
+    group: root
+    mode: 0600
+  # register: last_result
+  tags: srvbam
+
+
+## Директория для хранения архивов бэкапов
+
+- name: "Create dir for remote backups"
+  file:
+    path: "{{ borg_dir_path}}/{{ item }}"
+    state: directory
+    owner: borg
+    group: borg
+    mode: 0700
+  loop:
+    - "{{ all_hosts_tags }}"
+  tags: srvbam
+## Директория и файл для логирования работы borgbackup
+- name: "Create dir for log borgbackup"
+  file:
+    path: "{{ borg_log_path }}"
+    state: directory
+    owner: borg
+    group: borg
+    mode: 0700
+  tags: srvbam
+
+- name: "Create file for log borgbackup"
+  file:
+    path: "{{ borg_log_path }}/{{ borg_log_file_name }}"
+    state: touch
+    owner: borg
+    group: borg
+    mode: 0700
+  tags: srvbam
+
+
+# - name: "Create dir for remote backups"
+#   file:
+#     path: /var/backup
+#     owner: root
+#     group: root
+#     mode: 0700
+#   tags: srvbam

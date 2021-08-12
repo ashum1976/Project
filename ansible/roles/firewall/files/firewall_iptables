@@ -1,0 +1,16 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -p tcp -m conntrack --ctstate NEW -m tcp --dport 22 -j ACCEPT
+#-A INPUT -j REJECT --reject-with icmp-host-prohibited
+#-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+COMMIT
+*nat
+-A PREROUTING -m tcp -p tcp --dport 80 -i eth2 --source 192.168.6.0/24 -j DNAT  --to-destination 192.168.3.5:80
+-A PREROUTING -m tcp -p tcp --dport 443 -i eth2 --source 192.168.6.0/24 -j DNAT --to-destination 192.168.3.5:443
+
+COMMIT

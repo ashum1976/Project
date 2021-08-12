@@ -1,0 +1,15 @@
+---
+# vars file for ./ansible/roles/wdprs
+## Переменные для установки  WordPress и настройки
+wpdirectory: "/var/www/{{ domain_name }}/wordpress"
+#download_url: "http://wordpress.org/latest.tar.gz"
+wordpress_home_url: https://192.168.3.5
+# Admin wordpress wpadm
+wp_admin_user: "wpadm"
+wp_admin_pwd: "Otus_2021"
+wp_admin_email: wpadm@test.by
+wp_site_title: "Project OTUS"
+### Рабочий пользователь wpuser
+#wp_work_user: "wpuser"
+#wp_work_group: "wpuser"
+#wp_work_home: "/home/wpuser"

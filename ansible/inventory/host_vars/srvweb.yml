@@ -1,0 +1,54 @@
+## Пакеты, устанавливаемые только на данный хост
+dnf_install_host:
+         - nginx
+         - php
+         - php-curl
+         - php-gd
+         - php-mbstring
+         - php-xml
+         - php-xmlrpc
+         - php-soap
+         - php-intl
+         - php-zip
+         - php-mysqlnd
+         - php-fpm
+         - php-json
+         - percona-server-client
+         - percona-toolkit
+         - percona-xtrabackup-80
+         # - python3-pyOpenSSL
+
+## Переменные для настройки nginx-a
+
+domain_name: project.loc
+# nginx_root_path: "/var/www/{{ domain_name }}/wordpress"
+nginx_root_path: "/var/www/{{ domain_name }}"
+ssl_cert_path: "/etc/pki/nginx/{{ domain_name }}"
+cert_file: "/etc/pki/nginx/{{ domain_name }}/sert.pem"
+key_file: "/etc/pki/nginx/{{ domain_name }}/privkey.pem"
+csr_path: "/etc/pki/nginx/{{ domain_name }}/local.csr"
+log_path: "/var/log/nginx/"
+
+## SSL Variables for generate cert and key
+server_hostname: 192.168.3.5
+key_size: 4096
+# Задать парольную фразу, если нужно
+passphrase:
+# Others include DSA, ECC, Ed25519, Ed448, X25519, X448
+key_type: Ed25519
+country_name: BY
+email_address: admin@test.by
+organization_name: OTUS
+
+
+## Переменные для установки  WordPress и настройки
+wpdirectory: "/var/www/{{ domain_name }}/wordpress"
+download_url: "http://wordpress.org/latest.tar.gz"
+wp_admin_user:
+wp_admin_pwd:
+wp_admin_email:
+wp_site_title:
+## Пользователь wordpress
+wp_work_user: "wpuser"
+wp_work_group: "wpuser"
+wp_work_home: "/home/wpuser"

@@ -1,0 +1,107 @@
+---
+# tasks file for ../../ansible/roles/alltask
+
+- name: "Скопировать hosts файл для всех"
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+      - "{{ all_hosts_tags }}"
+
+#Удалить пакеты
+## Общие пакеты для всех серверов
+- name: "Удалить пакеты "
+  dnf:
+    name: "{{ dnf_remove }}"
+    state: absent
+  tags:
+    - "{{ all_hosts_tags }}"
+
+
+# Установить пакеты, список в переменной "{{ dnf_install_all }}"
+# Общие пакеты для всех серверов
+- name: "Установить пакеты общие для всех хостов "
+  dnf:
+    name: "{{ dnf_install_all }}"
+    state: present
+    disable_gpg_check:  yes
+  tags:
+      - "{{ all_hosts_tags }}"
+
+####################################SELinux#####################################
+
+# SELinux для всех хостов, модуль для работы с audit.log файлом и нестандартный порт для rsyslog сервера.
+## Разрешение для SELinux использовать нестандартный порт для rsyslog-a
+- name: Allow rsyslog to connect to tcp port 35514
+  seport:
+    ports: 35514
+    proto: tcp
+    setype: syslogd_port_t
+    state: present
+  tags:
+      - "{{ rsyslog_hosts }}"
+
+
+# Создание модуля для SELinux
+- name: Copy SELinux файл для создания разрешающего модуля
+  copy:
+    src: syslog_audit.te
+    dest: /root/mysqld_log.te
+    mode: 0600
+  tags:
+    - "{{ rsyslog_hosts }}"
+  notify: restart rsyslog
+#########################################end####################################
+# ########################################borgbackup###########################
+#
+- name: Copy ssh keys для работы borgbackup
+  copy:
+    src: id_ed25519
+    dest: /root/.ssh/id_ed25519
+    mode: 0600
+    owner: root
+    group: root
+  tags:
+    - "{{ rsyslog_hosts }}"
+
+## Директория и файл для логирования работы borgbackup
+- name: "Create dir for log borgbackup"
+  file:
+    path: "{{ borg_log_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+  tags:
+    - "{{ rsyslog_hosts }}"
+
+
+- name: "Create file for log borgbackup"
+  file:
+    path: "{{ borg_log_path }}/{{ borg_log_file_name }}"
+    state: touch
+    owner: root
+    group: root
+    mode: 0640
+  tags:
+    - "{{ rsyslog_hosts }}"
+
+
+# - name: "Создание пользователя для система архивации borgbackup"
+#   user:
+#     name: "{{ borg_user_name }}"
+#     group: "{{ borg_group_name }}"
+#     home: "{{ borg_user_home }}"
+#     password: "{{ hash_passwd }}"
+#     state: present
+#     generate_ssh_key: yes
+#     ssh_key_bits: 4096
+#     ssh_key_file: .ssh/id_ed25519
+#     ssh_key_type: ed25519
+#   tags:
+#      - "{{ all_hosts_tags }}"
+#
+# ####################################end#########################################

@@ -1,0 +1,68 @@
+---
+# tasks file for ./ansible/roles/wdprs
+# Установка wp-cli для установки wordpress и управление им
+##
+- name: Install WP-CLI
+  get_url:
+    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    dest: /usr/bin/wp
+    mode: 0755
+  tags: srvweb
+
+- name: Install WP-CLI tab completions
+  get_url:
+    url: https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
+    dest: /etc/bash_completion.d
+    mode: 0644
+  tags: srvweb
+
+## Загрузить с сайта последнюю версию wordpress  с сайта
+- name: "Download latest wp core"
+  command: wp core download --locale=ru_RU
+  args:
+     chdir: "{{ wpdirectory }}/"
+  remote_user: "{{ wp_work_user }}"
+  tags: srvweb
+
+## Проверка загружен ли wordpress
+- name: Is WordPress downloaded?
+  stat:
+    path: "{{ wpdirectory }}/index.php"
+  register: wordpress_is_downloaded
+  tags: srvweb
+
+## Конфигурация wordpress
+- name: Configure WordPress
+  command: wp core config
+           --path="{{ wpdirectory }}"
+           --dbname="{{  db_name_wrdp}}"
+           --dbuser="{{ db_user_wrdp }}"
+           --dbpass="{{ db_password_wrdp }}"
+           --dbprefix="{{ db_prefix_wrdp }}"
+           --dbhost="{{ db_host_wrdp }}"
+  remote_user: "{{ wp_work_user }}"
+  when: wordpress_is_downloaded.stat.exists == True
+  tags: srvweb
+
+## Проверка инсталлирован ли wordpress
+- name: Is WordPress installed?
+  command: wp core is-installed
+  args:
+    chdir: "{{ wpdirectory }}/"
+  register: wordpress_is_installed
+  ignore_errors: True
+  remote_user: "{{ wp_work_user }}"
+  tags: srvweb
+
+- name: Install WordPress tables
+  command: wp core install
+            --url="{{ wordpress_home_url }}"
+            --title="{{  wp_site_title}}"
+            --admin_user="{{ wp_admin_user }}"
+            --admin_password="{{ wp_admin_pwd }}"
+            --admin_email="{{ wp_admin_email }}"
+  args:
+      chdir: "{{ wpdirectory }}/"
+  remote_user: "{{ wp_work_user }}"
+  when: wordpress_is_installed is failed
+  tags: srvweb

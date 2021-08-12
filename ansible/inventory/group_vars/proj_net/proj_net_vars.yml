@@ -1,0 +1,14 @@
+# Удалить не нужные  пакеты
+dnf_remove:
+      - firewalld
+
+# Установить необходимые пакеты
+dnf_install_all:
+      - mc
+      - iptables-services
+      - kbd
+      - nano
+      - setools-console
+      - setroubleshoot-server
+      - python3-pyOpenSSL
+      - borgbackup

@@ -1,0 +1,10 @@
+.vagrant
+hddvm
+cert_old
+defaults
+ansible.log
+vagrant.log
+tests
+./ansible/templates
+.travis.yml
+wordpress-nginx-develop.zip

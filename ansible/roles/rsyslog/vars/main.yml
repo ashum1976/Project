@@ -1,0 +1,4 @@
+---
+# vars file for ./ansible/roles/rsyslog
+
+rsyslog_dir_path: /var/log/remote/

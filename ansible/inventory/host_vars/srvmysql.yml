@@ -1,0 +1,9 @@
+##
+##
+dnf_install_host:
+      # - https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+      - percona-server-server
+      - percona-toolkit
+      - percona-xtrabackup-80
+      - python38-PyMySQL
+      - python3-PyMySQL

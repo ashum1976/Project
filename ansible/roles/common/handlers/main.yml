@@ -1,0 +1,6 @@
+---
+# handlers file for ../../ansible/roles/alltask
+- name: restart rsyslog
+  systemd:
+    name: rsyslog
+    state: restarted

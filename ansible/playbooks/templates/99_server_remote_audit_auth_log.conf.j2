@@ -1,0 +1,21 @@
+#Conf for add log from remote hosts
+#dynafile - генерируем динамическое имя файла/папки на основе используемых переменных в шаблонах (%hostname%/%fromhost-ip%)
+
+
+# template(name="OnlyMsg" type="string" string="%msg:::drop-last-lf%\n")
+
+if $fromhost-ip == '"{{ hostvars[srvweb]['ansible_eth1']['ipv4']['address'] }}"' then {
+        if $msg contains "sudo" then {
+                    action(type="omfile" dynafile="path_auth_save")
+                        }
+        action(type="omfile" dynafile="path_ip_save")
+
+        }
+# Проверяем входящие данные на предмет наличия в строке tag=audit
+if $syslogtag == 'audit'  then {
+    # write to file
+    action(type="omfile" dynafile="path_audit_save" template="OnlyMsg")
+#    action(type="omfile" dynafile="path_all_save")
+
+
+}

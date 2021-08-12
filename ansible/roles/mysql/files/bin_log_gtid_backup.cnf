@@ -1,0 +1,9 @@
+[mysqld]
+log-bin = mysql-bin
+max-binlog-size = 256M
+binlog-format = "MIXED"
+binlog_expire_logs_seconds = 604800
+# GTID replication config
+log-slave-updates = On
+gtid-mode = On
+enforce-gtid-consistency = On

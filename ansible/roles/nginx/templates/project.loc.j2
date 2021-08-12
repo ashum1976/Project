@@ -1,0 +1,61 @@
+server {
+	# Ports to listen on, uncomment one.
+	listen 443 ssl http2 default_server;
+#	listen [::]:443 ssl http2;
+
+	# Server name to listen for
+	#server_name "{{ domain_name }}";
+  server_name _;
+
+	# Path to document root
+	root "{{ nginx_root_path }}/wordpress";
+
+	# Paths to certificate files.
+	ssl_certificate "{{ cert_file }}";
+	ssl_certificate_key "{{ key_file }}";
+
+	# File to be used as index
+	index index.php;
+
+	# Расположение log файлов
+	access_log "{{ log_path }}access.log";
+	error_log "{{ log_path }}error.log";
+  access_log syslog:server=192.168.3.6:35514,facility=local6,tag=nginx_acces,severity=info combined;
+
+	# Default server block rules
+	include global/server/defaults.conf;
+
+	# SSL rules
+	include global/server/ssl.conf;
+
+	location / {
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	location ~ \.php$ {
+		try_files $uri =404;
+		include global/fastcgi-params.conf;
+
+		# Use the php pool defined in the upstream variable.
+		# See global/php-pool.conf for definition.
+		fastcgi_pass   $upstream;
+	}
+}
+
+# # Redirect http to https
+# server {
+# 	listen 80;
+# 	listen [::]:80;
+# 	server_name single-site.com www.single-site.com;
+#
+# 	return 301 https://single-site.com$request_uri;
+# }
+#
+# # Redirect www to non-www
+# server {
+# 	listen 443;
+# 	listen [::]:443;
+# 	server_name www.single-site.com;
+#
+# 	return 301 https://single-site.com$request_uri;
+# }

@@ -1,0 +1,7 @@
+---
+# vars file for ./ansible/roles/borg
+borg_dir_path: /var/backup
+
+borg_user_name: borg
+borg_group_name: borg
+borg_user_home: /home/borg
