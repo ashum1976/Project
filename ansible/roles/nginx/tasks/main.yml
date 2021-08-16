@@ -6,7 +6,7 @@
 #   tags: srvweb
 #
 #
-# ################SELinux создать разрешающие модули или sebool
+# ################SELinux разрешить доступ sebool#################
 # # setsebool -P httpd_can_network_connect_db 1
 # # setsebool -P httpd_setrlimit 1
 #
@@ -24,9 +24,11 @@
 #     persistent: yes
 #   tags: srvweb
 #
+#####################################END########################################
+
 # ###################rsyslog#######################
 
-- name: Display all variables/facts known for a host
+- name: Display all  variables/facts known for a host
   debug:
     var:  ipv4_firewall
   tags: srvweb
@@ -79,13 +81,14 @@
 #   command: "percona-release setup ps80 -y"
 #   tags: srvweb
 #
-# ## Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
-# - name: "Установить пакеты необходимые только для srvweb "
+# ## Установить пакеты, спецефические для данного хоста . Переменная создана в host_vars.
+# - name: "Установить пакеты необходимые только для {{ ansible_facts['hostname']}} "
 #   dnf:
 #     name: "{{ dnf_install_host }}"
 #     state: present
 #     disable_gpg_check:  yes
-#   tags: srvweb
+#   when: dnf_install_host is defined
+    # tags: srvweb
 #
 # - name: "Создание группы для пользователя"
 #   group:

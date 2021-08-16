@@ -6,65 +6,96 @@
     name: common
   tags: firewall
 
-# ## Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
-# - name: "Установить пакеты необходимые только для firewall "
-#   dnf:
-#     name: "{{ dnf_install_host }}"
-#     state: present
-#     disable_gpg_check:  yes
-#   tags: firewall
+## Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
+- name: "Установить пакеты необходимые только для firewall "
+  dnf:
+    name: "{{ dnf_install_host }}"
+    state: present
+    disable_gpg_check:  yes
+  when: dnf_install_host is defined
+  tags: firewall
 
-#########################test task, will be remove######################################
-# - name: Display all variables/facts known for a host
-#   debug:
-#     var: ansible_facts
-#     # var: hostvars['srvweb']['ansible_eth1']['ipv4']['address']
-#     # var: hostvars[inventory_hostname]['ansible_eth2']['ipv4']['address']
-#   register: ipv4_firewall
-#     # verbosity: 4
-#   tags: firewall
-#
-# - name: Display all variables/facts known for a host
-#   debug:
-#     var:  ipv4_firewall
-#   tags: firewall
-#
-#
-#
-# - name: Display register var
-#   debug:
-#     var: hostvars['srvbam']
-#     # verbosity: 4
-#   tags: firewall
-#
-# - name: Display srvweb vars
-#   debug:
-#     # var: hostvars['srvweb'].eth1.ipv4.address
-#     var: ansible_facts.eth1.ipv4.address
-#     # var: hostvars[inventory_hostname]['ansible_eth2']['ipv4']['address']
-#   register: ipv4_firewall
-#     # verbosity: 4
-#   tags: firewall
-########################################END#####################################
+- name: "Настройка параметров sysctl"
+  sysctl:
+      name: net.ipv4.conf.all.forwarding
+      value: '1'
+      state:  present
+      sysctl_set: yes
+      reload: yes
+  tags: firewall
+
+
 
 #Запуск задач, для установки и настройки iptables.
+
+##Скопировать файл "iptables" для настройки iptables на хосте firewall.
+- name: "Copy file iptables to firewall host"
+  copy:
+    dest: /etc/sysconfig/iptables
+    src:  firewall_iptables
+    owner:  root
+    mode: 0600
+  tags: firewall
+  notify:
+     - restart iptables
+
+
+## Включить  в автозагрузку и запустить iptables
+- name: "Enable and started iptables on firewall host"
+  systemd:
+    name: iptables
+    state: started
+    enabled: yes
+  tags: firewall
 #
-# ##Скопировать файл "iptables" для настройки iptables на хосте firewall.
-# - name: Copy file iptables to firewall host
-#   copy:
-#     dest: /etc/sysconfig/iptables
-#     src:  firewall_iptables
-#     owner:  root
-#     mode: 0600
+# ########################################borgbackup##############################
+# - name: "Copy script for init repository {{ ansible_facts['hostname'] }}"
+#   template:
+#     src: borg_init.sh.j2
+#     dest: /root/borg_init.sh
+#     owner: root
+#     group: root
+#     mode: 0750
 #   tags: firewall
-#   notify:
-#      - restart iptables
 #
-#
-# ## Включить в автозагрузку и запустить iptables
-# - name: Enable and started iptables on firewall host
-#   systemd:
-#     name: iptables
-#     state: started
-#     enabled: yes
+# - name: "Инициализация репозитория"
+#   shell: /root/borg_init.sh
+#   register: result
+#   run_once: true
+#   ignore_errors: True
 #   tags: firewall
+#
+# - name: "Резерв свободного места в созданном репозитории"
+#   command: "sshpass -p qwerty ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no borg@192.168.3.6 'borg config /var/backup/{{ ansible_facts['hostname'] }} additional_free_space 100M'"
+    # run_once: tru
+#   # when: result is defined
+#   tags: firewall
+#
+# - name: "Script for archives etc dir"
+#   template:
+#     src: borg_backup.sh.j2
+#     dest: /root/borg_backup.sh
+#     owner: root
+#     group: root
+#     mode: 0750
+#   tags: firewall
+#
+# - name: "Cron every 20 min"
+#   cron:
+#     name: "Создать архив /etc directory"
+#     backup: "yes"
+#     minute: "20"
+#     user: root
+#     job: /root/borg_backup.sh
+#   tags: firewall
+#
+# - name: "Test"
+#   cron:
+#     name: "Test"
+#     backup: yes
+#     minute: 50
+#     user: root
+#     job: "ls -la"
+#   tags: firewall
+
+#########################################END####################################

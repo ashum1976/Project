@@ -1,8 +1,6 @@
 ---
 # tasks file for ./ansible/roles/rsyslog
 
-
-
 - name: "Create dir for remote logs"
   file:
     path: "{{ rsyslog_dir_path }}"
@@ -19,7 +17,6 @@
     owner: root
     group: root
     mode: 0644
-  # register: last_result
   tags: srvbam
 
 - name: "Копирование файла настройки фильтров rsyslog, для auth, audit, syslog, secure "
@@ -29,7 +26,6 @@
     owner: root
     group: root
     mode: 0644
-  # register: last_result
   tags: srvbam
 
 
@@ -40,17 +36,4 @@
     owner: root
     group: root
     mode: 0644
-  # register: last_result
   tags: srvbam
-
-
-
-
-# # Создание модуля для SELinux
-# - name: Copy SELinux файл для создания разрешающего модуля
-#   copy:
-#     src: syslog_audit.te
-#     dest: /root/mysqld_log.te
-#     mode: 0600
-#   tags: srvbam
-#   handler: restart rsyslog

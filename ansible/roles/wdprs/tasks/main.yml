@@ -39,7 +39,7 @@
            --dbuser="{{ db_user_wrdp }}"
            --dbpass="{{ db_password_wrdp }}"
            --dbprefix="{{ db_prefix_wrdp }}"
-           --dbhost="{{ db_host_wrdp }}"
+           --dbhost="{{ db_host_mysql }}"
   remote_user: "{{ wp_work_user }}"
   when: wordpress_is_downloaded.stat.exists == True
   tags: srvweb

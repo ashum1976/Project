@@ -10,11 +10,20 @@ all:
 proj_net:
   vars:
     ## db_* переменные для подключения к mysql базе данных, созданной в роли "mysql"
+    db_host_mysql: "192.168.3.7"
+    db_port_mysql: 3306
+    hash_passwd: $6$XxdVjYDINxCOZAK7$MKlVSXpPlFWlD8S2jfVT7ezY9uTTGEDvInPFtj8AOqWfVbLh6srXRiqZXqUSFrSSaNI2sPg3aAWJ4qe8zpPs40
+    ################################Wordpress###################################
     db_name_wrdp: "wrdp"
     db_user_wrdp: "wordpress"
     db_password_wrdp: "WorDpreSS2!!"
-    db_host_wrdp: "192.168.3.7"
     db_prefix_wrdp: "wp_"
+
+    ##################################Zabbix####################################
+    db_name_zabbix: zabbix
+    db_user_zabbix: zabbix
+    db_password_zabbix: ZabbiX2!!
+    ###################################BorgBackup######################################
     # borg vars
     borg_log_path: /var/log/borg
     borg_log_file_name: borgbackup.log
@@ -22,7 +31,6 @@ proj_net:
     # borg_group_name: borg
     # borg_user_home: /home/borg
     ## Hash password "qwerty" for user "borg", creates in role "borg"
-    hash_passwd: $6$XxdVjYDINxCOZAK7$MKlVSXpPlFWlD8S2jfVT7ezY9uTTGEDvInPFtj8AOqWfVbLh6srXRiqZXqUSFrSSaNI2sPg3aAWJ4qe8zpPs40
   children:
     clients:
     servers:

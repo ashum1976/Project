@@ -1,2 +1,8 @@
 ## Пакеты, устанавливаемые только на данный хост
-# dnf_install_host:
+dnf_install_host:
+        - zabbix-server-mysql
+        - zabbix-web-mysql
+        - zabbix-nginx-conf
+        - zabbix-sql-scripts
+        - php
+        - percona-server-client

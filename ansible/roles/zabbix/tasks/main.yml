@@ -1,2 +1,144 @@
 ---
 # tasks file for ./ansible/roles/zabbix
+
+# - name: "Выполнение общих задач для всех хостов"
+#   include_role:
+#     name: common
+#   tags: srvbam
+
+
+# # Установить пакет, percona и запустить. Выполняется установка  в роли "mysql" "
+# - name: "Установить пакет репозитория percona"
+#   dnf:
+#     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+#     state: present
+#     disable_gpg_check:  yes
+#   tags: srvbam
+#
+# # https://www.percona.com/doc/percona-server/LATEST/installation/yum_repo.html Включить репозиторий percona 8 версии, после этого поставить пакеты для работы.
+# - name: "Enable Percona repository (Percona version >= 8)"
+#   command: "percona-release setup ps80 -y"
+#   tags: srvbam
+
+# ip r a 192.168.6.0 via 192.168.3.14
+- name: "Добавление маршрута для работы с внешним IP 192.168.6.1"
+  command: ip r a 192.168.6.0 via 192.168.3.14
+  tags: srvbam
+
+## Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
+- name: "Установить пакеты необходимые только для {{ ansible_facts['hostname'] }}"
+  dnf:
+    name: "{{ dnf_install_host }}"
+    state: present
+    disable_gpg_check:  yes
+  when: dnf_install_host is defined
+  tags: srvbam
+
+- name: "Настройка конфигурационного файла сервера etc/zabbix_server"
+  template:
+    src: ./zabbix/zabbix_server.conf.j2
+    dest: /etc/zabbix/zabbix_server.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags: srvbam
+
+- name: "Настройка конфигурационного файла nginx/conf.d/zabbix"
+  template:
+    src: ./zabbix/zabbix.conf.j2
+    dest: /etc/nginx/conf.d/zabbix.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags: srvbam
+  notify: restart zabbix
+
+
+- name: "Настройка конфигурационного файла php-fpm/zabbix"
+  template:
+    src: ./zabbix/zabbix_php-fpm.conf.j2
+    dest: /etc/php-fpm.d/zabbix.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags: srvbam
+
+- name: "Настройка конфигурационного файла etc/nginx"
+  template:
+    src: ./nginx/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags: srvbam
+  notify:  restart nginx
+
+
+# zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -u zabbixuser -p zabbixdb Импорт схемы БД zabbix
+- name: "Импорт схемы БД zabbix-a"
+  mysql_db:
+    name: "{{ db_name_zabbix }}"
+    login_user: "{{ db_user_zabbix }}"
+    login_password: "{{ db_password_zabbix }}"
+    login_host: "{{ db_host_mysql }}"
+    # encoding: "utf8"
+    # collation: "utf8_bin"
+    state: import
+    target: /vagrant/ansible/roles/zabbix/files/mysql/create.sql
+    # target: /usr/share/doc/zabbix-sql-scripts/mysql/create.sql.gz
+  tags: srvbam
+
+# - name: "Импортировать схему БД zabbix"
+#   shell: "cat /vagrant/ansible/roles/zabbix/files/mysql/create.sql | mysql -u {{ db_user_zabbix }} -p {{ db_password_zabbix }} -h {{ db_host_mysql }} zabbix"
+#   tags: srvbam
+
+# ################SELinux разрешить доступ sebool#################
+# # setsebool -P httpd_can_connect_zabbix 1
+# # setsebool -P zabbix_can_network 1
+#### Может уже будет разрешено в модуле zabbix_server_add
+- name: "Set httpd_can_network_connect_db разрешить коннект к базе данных"
+  seboolean:
+     name: zabbix_can_network
+     state: yes
+     persistent: yes
+  tags: srvbam
+
+- name: "Set httpd_setrlimit nginx разрешить устанавливать(изменять) количество открытых файлов"
+  seboolean:
+     name: httpd_can_connect_zabbix
+     state: yes
+     persistent: yes
+  tags: srvbam
+
+- name: "daemons_enable_cluster_mode"
+  seboolean:
+     name: daemons_enable_cluster_mode
+     state: yes
+     persistent: yes
+  tags: srvbam
+
+- name: "Copy file for create module"
+  copy:
+    src: zabbix_server_add.te
+    dest: /root/zabbix_server_add.te
+    owner: root
+    group: root
+    mode: 0600
+  tags: srvbam
+
+- name:  Сборка и установка модуля для SELinux
+  script: selinux_zabbix.sh
+  tags: srvbam
+#####################################END########################################
+
+- name: "Старт zabbix, nginx, php-fpm services"
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - zabbix-server
+    - zabbix-agent2
+    - nginx
+    - php-fpm
+  tags: srvbam

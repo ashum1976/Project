@@ -1,11 +1,11 @@
 #---
 # tasks file for mysql
 
-- name: "Выполнение общих задач для всех хостов"
-  include_role:
-    name: common
-  tags:
-    - "{{ mysql_tags }}"
+# - name: "Выполнение общих задач для всех хостов"
+#   include_role:
+#     name: common
+#   tags:
+#     - "{{ mysql_tags }}"
 
 
 ## Установить  пакет percona и запустить
@@ -16,20 +16,24 @@
     disable_gpg_check:  yes
   tags:
     - "{{ mysql_tags }}"
-
+    - srvbam
+    - srvweb
 
 ## https://www.percona.com/doc/percona-server/LATEST/installation/yum_repo.html Включить репозиторий percona 8 версии, после этого поставить пакеты для работы.
 - name: "Enable Percona repository (Percona version >= 8)"
   command: "percona-release setup ps80 -y"
   tags:
     - "{{ mysql_tags }}"
+    - srvbam
+    - srvweb
 
 ## Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
-- name: "Установить пакеты необходимые только для хоста "
+- name: "Установить пакеты необходимые только для {{ ansible_facts['hostname']}} "
   dnf:
     name: "{{ dnf_install_host }}"
     state: present
     disable_gpg_check:  yes
+  when: dnf_install_host is defined
   tags:
     - "{{ mysql_tags }}"
 
@@ -70,16 +74,17 @@
      mode: 0644
   tags:
      - srvmysql
+  notify: restart mysql
 
-- name: "Копирование файла конфигурации backup хоста"
-  template:
-     src:  my.cnf_backup.j2
-     dest: /etc/my.cnf
-     owner: root
-     group: root
-     mode: 0644
-  tags:
-     - backupmysql
+# - name: "Копирование файла конфигурации backup хоста"
+#   template:
+#      src:  my.cnf_backup.j2
+#      dest: /etc/my.cnf
+#      owner: root
+#      group: root
+#      mode: 0644
+#   tags:
+#      - backupmysql
 
 - name: "Копирование файлов настроек"
   copy:
@@ -90,16 +95,17 @@
     mode: 0644
   tags:
      - srvmysql
+  notify: restart mysql
 
-- name: "Копирование файлов настроек"
-  copy:
-    src: bin_log_gtid_backup.cnf
-    dest: /etc/my.cnf.d/
-    owner: root
-    group: root
-    mode: 0644
-  tags:
-     - backupmysql
+# - name: "Копирование файлов настроек"
+#   copy:
+#     src: bin_log_gtid_backup.cnf
+#     dest: /etc/my.cnf.d/
+#     owner: root
+#     group: root
+#     mode: 0644
+#   tags:
+#      - backupmysql
 
 # Создание модуля для SELinux
 - name: Copy SELinux файл для создания разрешающего модуля
@@ -133,12 +139,6 @@
   tags:
      - "{{ mysql_tags }}"
 
-- name: "Показать переменную"
-  debug:
-    var: mysql_root_passwd
-  tags:
-    - "{{ mysql_tags }}"
-
 - name: "Change root passwd"
   shell: mysql -u root -p'{{ mysql_root_passwd.stdout }}'  --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ new_passwd }}';"
   tags:
@@ -168,102 +168,139 @@
   tags:
     - "{{ mysql_tags }}"
 
-
-## Создать базу для wordpress-a на сервере srvmysql и создать пользователя для доступа к этой базе.
-- name: "Создание базы для wordpress"
+####################Создать базу для zabbix и пользователя######################
+- name: "Создание базы для zabbix"
   mysql_db:
     login_user: root
     login_password: "{{ new_passwd }}"
     login_unix_socket: /var/lib/mysql/mysql.sock
-    name:
-      - "{{ db_name_wrdp }}"
+    encoding: "utf8"
+    collation: "utf8_bin"
+    name: "{{ db_name_zabbix }}"
+  register: new_zabbix_mysql_database
   tags: srvmysql
 
-
-- name: "Создание mysql пользователя для доступа к базе Wordpress {{ db_name_wrdp }}"
+- name: "Создание mysql пользователя для доступа к базе zabbix"
   no_log: true
   mysql_user:
     login_user: root
     login_password: "{{ new_passwd }}"
     login_unix_socket: /var/lib/mysql/mysql.sock
-    name: "{{ db_user_wrdp }}"
-    password: "{{ db_password_wrdp }}"
+    name: "{{ db_user_zabbix }}"
+    password: "{{ db_password_zabbix }}"
     host: 192.168.3.%
     state: present
-    priv: "{{ db_name_wrdp }}.*:ALL"
+    priv: "{{ db_name_zabbix }}.*:ALL"
   tags: srvmysql
 
-- name: "Создание mysql пользователя для репликации"
-  no_log: true
-  mysql_user:
-   login_user: root
-   login_password: "{{ new_passwd }}"
-   login_unix_socket: /var/lib/mysql/mysql.sock
-   name: repl
-   host: 192.168.3.8
-   password: "{{ repl_user_passwd }}"
-   priv: "*.*:REPLICATION SLAVE"
-   state: present
-  tags: srvmysql
+# # zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -u zabbixuser -p zabbixdb Импорт схемы БД zabbix
+# - name: "Импорт схемы БД zabbix-a"
+#   mysql_db:
+#     name: "{{ db_name_zabbix }}"
+#     login_user: "{{ db_user_zabbix }}"
+#     login_password: "{{  db_password_zabbix}}"
+#     encoding: "utf8"
+#     collation: "utf8_bin"
+#     state: import
+#     target: ./zabbix/create.sql.gz
+#   when: new_zabbix_mysql_database.changed == true
+#   tags: srvmysql
 
-- name: "Создание бэкапа базы, для передачи клиенту backupmysql"
-  mysql_db:
-   state: dump
-   name: all
-   login_user: root
-   login_password: "{{ new_passwd }}"
-   login_unix_socket: /var/lib/mysql/mysql.sock
-   target: /home/vagrant/wrdp.sql
-   master_data: 1
-  tags: srvmysql
-
-
-- name: "scp с сервера srvmysql файла wrdp.sql"
-  no_log: true
-  command: sshpass -p "vagrant" scp  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null vagrant@192.168.3.7:/home/vagrant/wrdp.sql /home/vagrant/wrdp.sql
-  tags: backupmysql
-
-
-- name: "Восстановление требуемоей базы wrdp, from backup"
-  mysql_db:
-    login_user: root
-    login_password: "{{ new_passwd }}"
-    name: wrdp
-    state: import
-    target:  /home/vagrant/wrdp.sql
-  tags: backupmysql
-
-- name: " Конфигурацтя для запуска слейв-а. Установка параметров подключения к основному серверу (master_host) "
-  mysql_replication:
-    login_user: root
-    login_password: "{{ new_passwd }}"
-    mode: changeprimary
-    primary_auto_position: 1
-    primary_host: 192.168.3.7
-    primary_port: 3306
-    primary_password: "{{ repl_user_passwd }}"
-    primary_user: repl
-  tags: backupmysql
-
-- name: " Конфигурацтя для запуска слейв-а "
-  mysql_replication:
-    login_user: root
-    login_password: "{{ new_passwd }}"
-    mode: startreplica
-  tags: backupmysql
-
-- name: "Статус репликации"
-  mysql_replication:
-    login_user: root
-    login_password: "{{ new_passwd }}"
-    mode: getreplica
-  register: status_repl
-  tags: backupmysql
-
-- name: "Показать статус реплткации "
-  debug:
-    var: status_repl
-  tags: backupmysql
+###################Создать базу для wordpress-a и пользователя.#################
+# - name: "Создание базы для wordpress"
+#   mysql_db:
+#     login_user: root
+#     login_password: "{{ new_passwd }}"
+#     login_unix_socket: /var/lib/mysql/mysql.sock
+#     name:
+#       - "{{ db_name_wrdp }}"
+#   tags: srvmysql
+#
+#
+# - name: "Создание mysql пользователя для доступа к базе Wordpress {{ db_name_wrdp }}"
+#   no_log: true
+#   mysql_user:
+#     login_user: root
+#     login_password: "{{ new_passwd }}"
+#     login_unix_socket: /var/lib/mysql/mysql.sock
+#     name: "{{ db_user_wrdp }}"
+#     password: "{{ db_password_wrdp }}"
+#     host: 192.168.3.%
+#     state: present
+#     priv: "{{ db_name_wrdp }}.*:ALL"
+#   tags: srvmysql
+#
+# - name: "Создание mysql пользователя для репликации"
+#   no_log: true
+#   mysql_user:
+#    login_user: root
+#    login_password: "{{ new_passwd }}"
+#    login_unix_socket: /var/lib/mysql/mysql.sock
+#    name: repl
+#    host: 192.168.3.8
+#    password: "{{ repl_user_passwd }}"
+#    priv: "*.*:REPLICATION SLAVE"
+#    state: present
+#   tags: srvmysql
+#
+# - name: "Создание бэкапа базы, для передачи клиенту backupmysql"
+#   mysql_db:
+#    state: dump
+#    name: all
+#    login_user: root
+#    login_password: "{{ new_passwd }}"
+#    login_unix_socket: /var/lib/mysql/mysql.sock
+#    target: /home/vagrant/wrdp.sql
+#    master_data: 1
+#   tags: srvmysql
+#
+#
+# - name: "scp с сервера srvmysql файла wrdp.sql"
+#   no_log: true
+#   command: sshpass -p "vagrant" scp  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null vagrant@192.168.3.7:/home/vagrant/wrdp.sql /home/vagrant/wrdp.sql
+#   tags: backupmysql
+#
+#
+# - name: "Восстановление требуемоей базы wrdp, from backup"
+#   mysql_db:
+#     login_user: root
+#     login_password: "{{ new_passwd }}"
+#     name: wrdp
+#     state: import
+#     target:  /home/vagrant/wrdp.sql
+#   tags: backupmysql
+#
+# - name: " Конфигурацтя для запуска слейв-а. Установка параметров подключения к основному серверу (master_host) "
+#   mysql_replication:
+#     login_user: root
+#     login_password: "{{ new_passwd }}"
+#     mode: changeprimary
+#     primary_auto_position: 1
+#     primary_host: 192.168.3.7
+#     primary_port: 3306
+#     primary_password: "{{ repl_user_passwd }}"
+#     primary_user: repl
+#   tags: backupmysql
+#
+# - name: " Конфигурацтя для запуска слейв-а "
+#   mysql_replication:
+#     login_user: root
+#     login_password: "{{ new_passwd }}"
+#     mode: startreplica
+#   tags: backupmysql
+#
+# - name: "Статус репликации"
+#   mysql_replication:
+#     login_user: root
+#     login_password: "{{ new_passwd }}"
+#     mode: getreplica
+#   register: status_repl
+#   tags: backupmysql
+#
+# - name: "Показать статус реплткации "
+#   debug:
+#     var: status_repl
+#   tags: backupmysql
 
 #######################################borgbackup###############################
 

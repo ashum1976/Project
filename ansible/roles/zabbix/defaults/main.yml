@@ -1,0 +1,9 @@
+---
+# defaults file for ./ansible/roles/zabbix
+
+# zabbix_server_database: mysql
+# zabbix_server_database_long: mysql
+# zabbix_server_dbhost: 192.168.3.7
+# zabbix_server_dbname: "{{ db_name_zabbix }}"
+# zabbix_server_dbuser: "{{ db_user_zabbix }}"
+# zabbix_server_dbpassword: "{{ db_password_wrdp }}"

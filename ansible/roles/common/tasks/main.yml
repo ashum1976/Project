@@ -32,29 +32,36 @@
       - "{{ all_hosts_tags }}"
 
 ####################################SELinux#####################################
-
+############RSYSLOG##################
 # SELinux для всех хостов, модуль для работы с audit.log файлом и нестандартный порт для rsyslog сервера.
 ## Разрешение для SELinux использовать нестандартный порт для rsyslog-a
-- name: Allow rsyslog to connect to tcp port 35514
-  seport:
-    ports: 35514
-    proto: tcp
-    setype: syslogd_port_t
-    state: present
-  tags:
-      - "{{ rsyslog_hosts }}"
+# - name: Allow rsyslog to connect to tcp port 35514
+#   seport:
+#     ports: 35514
+#     proto: tcp
+#     setype: syslogd_port_t
+#     state: present
+#   tags:
+#       - "{{ rsyslog_hosts }}"
+#
+#
+# # Создание модуля для SELinux
+# - name: Copy SELinux файл для создания разрешающего модуля
+#   copy:
+#     src: syslog_audit.te
+#     dest: /root/syslog_audit.te
+#     mode: 0600
+#   tags:
+#     - "{{ rsyslog_hosts }}"
+#   notify: restart rsyslog
+#
+# - name:  Сборка и установка модуля для SELinux
+#   script: selinux_rsyslog.sh
+#   tags:
+      # - "{{ rsyslog_hosts }}"
+##################RSYSLOG_END############
+#########################################END####################################
 
-
-# Создание модуля для SELinux
-- name: Copy SELinux файл для создания разрешающего модуля
-  copy:
-    src: syslog_audit.te
-    dest: /root/mysqld_log.te
-    mode: 0600
-  tags:
-    - "{{ rsyslog_hosts }}"
-  notify: restart rsyslog
-#########################################end####################################
 # ########################################borgbackup###########################
 #
 - name: Copy ssh keys для работы borgbackup
@@ -104,4 +111,4 @@
 #   tags:
 #      - "{{ all_hosts_tags }}"
 #
-# ####################################end#########################################
+# ####################################END#########################################

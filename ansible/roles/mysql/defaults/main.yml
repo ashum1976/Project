@@ -1,0 +1,35 @@
+---
+# defaults file  for mysql
+
+# Базовые настройки mysql
+mysql_port: "3306"
+mysql_bind_address_s: "192.168.3.2"
+mysql_bind_address_b: "192.168.3.3"
+mysql_data_dir: "/var/lib/mysql"
+
+# Тюнинговые настройки для оптимизации работы
+mysql_key_buffer: "16M"
+mysql_max_allowed_packet: "256M"
+mysql_thread_stack: "192K"
+mysql_cache_size: "8"
+mysql_max_connections: "200"
+mysql_table_cache: "64"
+mysql_thread_concurrency: "10"
+mysql_character_set_server: "utf8mb4"
+mysql_collation_server: "utf8mb4_0900_ai_ci"
+# mysql_character_set_server: "utf8"
+# mysql_collation_server: "utf8_bin"
+mysql_mysqldump_max_allowed_packet: "128M"
+mysql_sort_buffer_size: "256K"
+
+
+# InnoDB tuning
+mysql_innodb_file_per_table: "1"
+mysql_innodb_flush_method: "fdatasync"
+mysql_innodb_buffer_pool_size: "256M"
+mysql_innodb_flush_log_at_trx_commit: "1"
+mysql_innodb_lock_wait_timeout: "50"
+mysql_innodb_log_buffer_size: "1M"
+mysql_innodb_log_file_size: "64M"
+
+mysql_character_set_client_handshake: "FALSE"

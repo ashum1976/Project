@@ -4,6 +4,7 @@ dnf_remove:
 
 # Установить необходимые пакеты
 dnf_install_all:
+      - glibc-langpack-ru
       - mc
       - iptables-services
       - kbd
@@ -12,3 +13,5 @@ dnf_install_all:
       - setroubleshoot-server
       - python3-pyOpenSSL
       - borgbackup
+      - zabbix-agent2.x86_64
+      - python3-PyMySQL

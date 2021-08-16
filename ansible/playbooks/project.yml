@@ -6,12 +6,12 @@
   become: True
   gather_facts: True
   roles:
-     # - mysql
-     - nginx
+     - mysql
+     # - nginx
      # - wdprs
      - firewall
-     # - zabbix
-     - borg
+     - zabbix
+     # - borg
      # - rsyslog
   vars_files:
     - /vagrant/ansible/roles/defaults/main.yml

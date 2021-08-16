@@ -1,4 +1,4 @@
-# * Basic Settings
+# * Базовые настройки
 [mysqld]
 user        = mysql
 pid-file    = /var/run/mysqld/mysqld.pid
@@ -16,7 +16,7 @@ sql_mode={{ mysql_sql_mode }}
 {% endif %}
 
 
-# * Fine Tuning
+# * Небольшой тюнинг mysql-a
 key_buffer_size         = {{ mysql_key_buffer }}
 max_allowed_packet      = {{ mysql_max_allowed_packet }}
 thread_stack            = {{ mysql_thread_stack }}
@@ -25,7 +25,7 @@ max_connections         = {{ mysql_max_connections }}
 table_open_cache        = {{ mysql_table_cache }}
 sort_buffer_size        = {{ mysql_sort_buffer_size }}
 
-# ** Logging and Replication
+# ** Логирование и репликация
 log_error = /var/log/mysql/mysqld.log
 log_error_verbosity = 2
 #log_slow_queries   = /var/log/mysql/mysql-slow.log
@@ -40,7 +40,7 @@ max_binlog_size     = 100M
 #binlog_ignore_db   = include_database_name
 
 
-# ** InnoDB
+# ** Установки для InnoDB
 # InnoDB is enabled by default with a 10MB datafile in /var/lib/mysql/.
 # Read the manual for more InnoDB related options. There are many!
 innodb_flush_log_at_trx_commit = {{ mysql_innodb_flush_log_at_trx_commit }}
@@ -52,7 +52,6 @@ innodb_lock_wait_timeout = {{ mysql_innodb_lock_wait_timeout }}
 innodb_log_buffer_size = {{ mysql_innodb_log_buffer_size }}
 innodb_log_file_size = {{ mysql_innodb_log_file_size }}
 innodb_file_per_table = {{ mysql_innodb_file_per_table }}
-
 
 character_set_server = {{ mysql_character_set_server }}
 collation_server = {{ mysql_collation_server }}

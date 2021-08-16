@@ -1,0 +1,20 @@
+##
+## Список переменных  используемых глобально в ролях, в частности для tags (all_hosts_tags). Остальные глобальные переменный можно определять и в inventory/project_vars.yml
+## Определены в файле playbooks/project.yml
+all_hosts_tags:
+      - srvmysql
+      - firewall
+      - srvweb
+      - srvbam
+      - backupmysql
+rsyslog_hosts:
+      - srvmysql
+      - firewall
+      - srvweb
+      - backupmysql
+# borgbackup_ssh_key_hosts:
+#       - srvmysql
+#       - backupmysql
+#       - srvweb
+#       - srvbam
+#       - firewall

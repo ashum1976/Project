@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+#Автоответ, если вариант подключения к репозиторию изменился
+export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
+
+#Автответ на потенциально опасные действия
+#export BORG_CHECK_I_KNOW_WHAT_I_AM_DOING=yes
+
+# пароль для шифрования и доступа к нашему репозиторию.
+export BORG_PASSPHRASE='vagrant'
+
+#Инициализируем репозиторий (firewall) — хранилище резервных копий
+borg --rsh 'ssh -o StrictHostKeyChecking=no' init --encryption=repokey-blake2 borg@192.168.3.6:{{ ansible_hostname }} >> /var/log/borg/borgbackup.log 2>&1
+
+#sshpass -p "qwerty" ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no  borg@192.168.10.11 'borg config /var/backup/client/backup/  additional_free_space 100M'
