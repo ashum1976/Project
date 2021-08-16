@@ -1,0 +1,24 @@
+#Conf for add log from remote hosts
+
+#dynafile - генерируем динамическое имя файла/папки на основе используемых переменных в шаблонах (%hostname%/%fromhost-ip%)
+
+## Фильтр для входящего потока, можно фильтровать поток для rsyslog сервера, по входящим tags и не только,  и на основе этого формировать нужные файлы в нужных папках
+## Получать логи от программ и сервисов и раскладывать или формировать файлы, для дальнейшей обработки, или для хранения их.
+
+
+# template(name="OnlyMsg" type="string" string="%msg:::drop-last-lf%\n")
+
+# #Фильтр входящего потока по tag = nginx_error, ошибки с сервера nginx
+# if $syslogtag == 'nginx_error'  then {
+#     # write to file
+# #    action(type="omfile" dynafile="path_nginx_error" template="OnlyMsg")
+#     action(type="omfile" dynafile="path_nginx_error")
+#
+# }
+#
+# if $syslogtag == 'nginx_access'  then {
+#     # write to file
+# #    action(type="omfile" dynafile="path_nginx_access" template="OnlyMsg")
+#     action(type="omfile" dynafile="path_nginx_access")
+#
+# }

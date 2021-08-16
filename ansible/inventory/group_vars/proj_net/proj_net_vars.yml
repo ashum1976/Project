@@ -11,6 +11,7 @@ dnf_install_all:
       - nano
       - setools-console
       - setroubleshoot-server
+      - checkpolicy
       - python3-pyOpenSSL
       - borgbackup
       - zabbix-agent2.x86_64

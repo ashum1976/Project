@@ -88,9 +88,6 @@
     # target: /usr/share/doc/zabbix-sql-scripts/mysql/create.sql.gz
   tags: srvbam
 
-# - name: "Импортировать схему БД zabbix"
-#   shell: "cat /vagrant/ansible/roles/zabbix/files/mysql/create.sql | mysql -u {{ db_user_zabbix }} -p {{ db_password_zabbix }} -h {{ db_host_mysql }} zabbix"
-#   tags: srvbam
 
 # ################SELinux разрешить доступ sebool#################
 # # setsebool -P httpd_can_connect_zabbix 1

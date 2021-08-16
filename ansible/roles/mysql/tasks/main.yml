@@ -168,30 +168,30 @@
   tags:
     - "{{ mysql_tags }}"
 
-####################Создать базу для zabbix и пользователя######################
-- name: "Создание базы для zabbix"
-  mysql_db:
-    login_user: root
-    login_password: "{{ new_passwd }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock
-    encoding: "utf8"
-    collation: "utf8_bin"
-    name: "{{ db_name_zabbix }}"
-  register: new_zabbix_mysql_database
-  tags: srvmysql
-
-- name: "Создание mysql пользователя для доступа к базе zabbix"
-  no_log: true
-  mysql_user:
-    login_user: root
-    login_password: "{{ new_passwd }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock
-    name: "{{ db_user_zabbix }}"
-    password: "{{ db_password_zabbix }}"
-    host: 192.168.3.%
-    state: present
-    priv: "{{ db_name_zabbix }}.*:ALL"
-  tags: srvmysql
+# ####################Создать базу для zabbix и пользователя######################
+# - name: "Создание базы для zabbix"
+#   mysql_db:
+#     login_user: root
+#     login_password: "{{ new_passwd }}"
+#     login_unix_socket: /var/lib/mysql/mysql.sock
+#     encoding: "utf8"
+#     collation: "utf8_bin"
+#     name: "{{ db_name_zabbix }}"
+#   register: new_zabbix_mysql_database
+#   tags: srvmysql
+#
+# - name: "Создание mysql пользователя для доступа к базе zabbix"
+#   no_log: true
+#   mysql_user:
+#     login_user: root
+#     login_password: "{{ new_passwd }}"
+#     login_unix_socket: /var/lib/mysql/mysql.sock
+#     name: "{{ db_user_zabbix }}"
+#     password: "{{ db_password_zabbix }}"
+#     host: 192.168.3.%
+#     state: present
+#     priv: "{{ db_name_zabbix }}.*:ALL"
+#   tags: srvmysql
 
 # # zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -u zabbixuser -p zabbixdb Импорт схемы БД zabbix
 # - name: "Импорт схемы БД zabbix-a"

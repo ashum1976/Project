@@ -1,5 +1,18 @@
 ---
 # tasks file for ../../ansible/roles/alltask
+#Установка параметров ядря, для конфигурирования работы виртуальных машин как серверов :)
+- name: "Настройка параметров sysctl для режима - сервер"
+  sysctl:
+      name: "{{ items.parametr }}"
+      value: "{{ items.vars }}"
+      state:  present
+      sysctl_set: yes
+      reload: yes
+  loop:
+    - { parametr: 'swappines',  vars: '0'}
+    - { parametr: 'min_free_kbytes',  vars: '3145728' }
+  tags: firewall
+
 
 - name: "Скопировать hosts файл для всех"
   template:

@@ -26,7 +26,7 @@
 #
 #####################################END########################################
 
-# ###################rsyslog#######################
+####################rsyslog#######################
 
 - name: Display all  variables/facts known for a host
   debug:
@@ -37,7 +37,7 @@
 
 # - name: "Копирование основного файла конфигурации rsyslog"
 #   template:
-#     src: 05_client_gconf.conf.j2
+#     src: ./srvweb/rsyslog/05_client_gconf.conf.j2
 #     dest: /etc/rsyslog.d/05_client_gconf.conf
 #     owner: root
 #     group: root
@@ -47,7 +47,7 @@
 #
 # - name: "Копирование файла auth, priv, audit, secure логи"
 #   template:
-#     src: 05_client_audit_auth_log.conf.j2
+#     src: ./srvweb/rsyslog/05_client_audit_auth_log.conf.j2
 #     dest: /etc/rsyslog.d/05_client_audit_auth_log.conf
 #     owner: root
 #     group: root
@@ -57,7 +57,7 @@
 #
 # - name: "Копирование файла nginx логи"
 #   template:
-#     src: 05_client_nginx.conf.j2
+#     src: ./srvweb/rsyslog/05_client_nginx.conf.j2
 #     dest: /etc/rsyslog.d/05_client_nginx.conf
 #     owner: root
 #     group: root

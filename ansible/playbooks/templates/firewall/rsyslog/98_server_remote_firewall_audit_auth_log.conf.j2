@@ -4,7 +4,7 @@
 
 # template(name="OnlyMsg" type="string" string="%msg:::drop-last-lf%\n")
 
-if $fromhost-ip == '"{{ hostvars[srvweb]['ansible_eth1']['ipv4']['address'] }}"' then {
+if $fromhost-ip == '"{{ rsyslog_firewall }}"' then {
         if $msg contains "sudo" then {
                     action(type="omfile" dynafile="path_auth_save")
                         }

@@ -7,7 +7,7 @@
 
 #RuleSets. Правило применяемое при вызове в конкретном действии(actions). Подключается и шаблон для формирования строки нужного формата.
 ruleset (name="sendToLogserver") {
-action(type="omfwd" Target="{{ hostvars[srvbam]['ansible_eth1']['ipv4']['address'] }}" Port="35514" template="LongTagForwardFormat")
+action(type="omfwd" Target="{{ rsyslog_server }}" Port="35514" template="LongTagForwardFormat")
 
 }
 
@@ -22,7 +22,7 @@ input(type="imfile"
 # Выбираем данные из syslog по критерию authpriv (аутентификаци и всё что с ней связано, логины пользователей программ и т.д.), и любой важности
 authpriv.*{
                        action(type="omfwd"
-                       target="{{ hostvars[srvbam]['ansible_eth1']['ipv4']['address'] }}"
+                       target="{{ rsyslog_server }}"
                        port="35514"
                        protocol="tcp"
                        queue.type="linkedList"         # run asynchronously

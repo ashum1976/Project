@@ -19,10 +19,12 @@
     mode: 0644
   tags: srvbam
 
-- name: "Копирование файла настройки фильтров rsyslog, для auth, audit, syslog, secure "
+#########################SrvWEB#################################################
+####################Nginx########
+- name: "Копирование файла настройки фильтров rsyslog server-a, для auth, audit, syslog, secure "
   template:
-    src: 99_server_remote_audit_auth_log.conf.j2
-    dest: /etc/rsyslog.d/remote_nginx_log.conf
+    src: srvweb/rsyslog/99_server_remote_nginx_audit_auth_log.conf.j2
+    dest: /etc/rsyslog.d/remote_nginx_audit_log.conf
     owner: root
     group: root
     mode: 0644
@@ -31,9 +33,97 @@
 
 - name: "Копирование файла настройки фильтров rsyslog, для nginx"
   template:
-    src: 99_server_remote_nginx_log.conf.j2
+    src: srvweb/rsyslog/99_server_remote_nginx_log.conf.j2
     dest: /etc/rsyslog.d/remote_nginx_log.conf
     owner: root
     group: root
     mode: 0644
   tags: srvbam
+
+- name: "Копирование основного файла конфигурации rsyslog, общего для всех хостов"
+  template:
+    src:  all_client_gconf.conf.j2
+    dest: /etc/rsyslog.d/05_client_gconf.conf
+    owner: root
+    group: root
+    mode: 0644
+  # register: last_result
+  tags: srvweb
+
+- name: "Копирование файла  общего для всех хостов - auth, priv, audit, secure логи"
+  template:
+    src:   all_client_audit_auth_log.conf.j2
+    dest: /etc/rsyslog.d/05_client_audit_auth_log.conf
+    owner: root
+    group: root
+    mode: 0644
+  # register: last_result
+  tags: srvweb
+
+- name: "Копирование файла nginx логи"
+  template:
+    src: srvweb/rsyslog/05_client_nginx.conf.j2
+    dest: /etc/rsyslog.d/05_client_nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+  # register: last_result
+  tags: srvweb
+
+#######################
+###############################SrvWEB_END##############################################
+
+#########################Firewall###############################################
+- name: "Копирование файла настройки фильтров rsyslog, для auth, audit, syslog, secure "
+  template:
+    src: firewall/rsyslog/98_server_remote_firewall_audit_auth_log.conf.j2
+    dest: /etc/rsyslog.d/remote_firewall_audit_log.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags: srvbam
+
+
+- name: "Копирование файла настройки фильтров rsyslog, для firewall"
+  template:
+    src: firewall/rsyslog/98_server_remote_firewall_log.conf.j2
+    dest: /etc/rsyslog.d/remote_firewall_log.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+  tags: srvbam
+
+
+
+- name: "Копирование основного файла конфигурации rsyslog"
+  template:
+    src: all_client_gconf.conf.j2
+    dest: /etc/rsyslog.d/14_client_gconf.conf
+    owner: root
+    group: root
+    mode: 0644
+  # register: last_result
+  tags: firewall
+
+- name: "Копирование файла общего для всех хостов -  auth, priv, audit, secure логи"
+  template:
+    src: all_client_audit_auth_log.conf.j2
+    dest: /etc/rsyslog.d/14_client_audit_auth_log.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+  # register: last_result
+  tags: firewall
+
+# - name: "Копирование файла firewall логи"
+#   template:
+#     src: firewall/rsyslog/14_client_firewall.conf.j2
+#     dest: /etc/rsyslog.d/14_client_firewall.conf
+#     owner: root
+#     group: root
+#     mode: 0644
+#   # register: last_result
+#   tags: firewall
+#################################Firewall_END###################################

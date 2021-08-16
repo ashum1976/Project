@@ -1,10 +1,10 @@
 ---
 # tasks  file for ./ansible/roles/firewall
 
-- name: "Выполнение общих задач для всех хостов"
-  include_role:
-    name: common
-  tags: firewall
+# - name: "Выполнение общих задач для всех хостов"
+#   include_role:
+#     name: common
+#   tags: firewall
 
 ## Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
 - name: "Установить пакеты необходимые только для firewall "

@@ -1,0 +1,14 @@
+#Authpriv remote log on servers
+
+#RuleSets. Переслать log об ошибках работы nginx-a на сервер логгирования, SrvBAM. Так же можно сформировать и другие необходимые логи от выполняемых задач.
+ruleset (name="sendToLogserver") {
+action(type="omfwd" Target="{{ rsyslog_server }}" Port="35514" template="LongTagForwardFormat")
+
+}
+
+input(type="imfile"
+    file="/var/log/nginx/error.log"
+    tag="nginx_error"
+    reopenOnTruncate="on"
+    ruleset="sendToLogserver"
+        )

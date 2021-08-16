@@ -3,7 +3,7 @@ all:
     ansible_user: 'vagrant'
     ansible_ssh_pass: 'vagrant'
     ansible_host: 127.0.0.1
-    # Пароль для доступа в MySQL
+    # Пароль для доступа в MySQL user - root
     new_passwd:  Otus_2021
 
 #Группа proj_net (parent), включающая в себя группы clients и servers (children)
@@ -31,6 +31,13 @@ proj_net:
     # borg_group_name: borg
     # borg_user_home: /home/borg
     ## Hash password "qwerty" for user "borg", creates in role "borg"
+    ##################################rsyslog###################################
+    rsyslog_server: "192.168.3.6"
+    rsyslog_srvweb: "192.168.3.5"
+    rsyslog_srvbam: "192.168.3.6"
+    rsyslog_srvmysql: "192.168.3.7"
+    rsyslog_backupmysql: "192.168.3.8"
+    rsyslog_firewall: "192.168.3.14"
   children:
     clients:
     servers:
