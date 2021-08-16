@@ -14,6 +14,11 @@
   tags: firewall
 
 
+# ip r a 192.168.6.0 via 192.168.3.14
+- name: "Добавление маршрута для работы с внешним IP 192.168.6.1"
+  command: ip r a 192.168.6.0 via 192.168.3.14
+  tags: srvbam
+
 - name: "Скопировать hosts файл для всех"
   template:
     src: hosts.j2

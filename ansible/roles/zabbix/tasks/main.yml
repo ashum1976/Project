@@ -20,10 +20,7 @@
 #   command: "percona-release setup ps80 -y"
 #   tags: srvbam
 
-# ip r a 192.168.6.0 via 192.168.3.14
-- name: "Добавление маршрута для работы с внешним IP 192.168.6.1"
-  command: ip r a 192.168.6.0 via 192.168.3.14
-  tags: srvbam
+
 
 ## Установить пакеты, спецефические для хостов. Переменная создана в host_vars.
 - name: "Установить пакеты необходимые только для {{ ansible_facts['hostname'] }}"

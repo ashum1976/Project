@@ -8,11 +8,7 @@
   roles:
      - common
      - mysql
-     # - nginx
-     # - wdprs
      - firewall
-     # - zabbix
-     # - borg
      - rsyslog
   vars_files:
     - /vagrant/ansible/roles/defaults/main.yml
